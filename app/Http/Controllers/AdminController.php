@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Charts\DashboardChart;
 use App\Comment;
 use App\Http\Requests\CreatePost;
 use App\Http\Requests\UserUpdate;
 use App\Post;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -20,7 +23,26 @@ class AdminController extends Controller
 
     public function dashboard()
     {
-        return view('admin.dashboard');
+        $chart = new DashboardChart();
+        $days = $this->generateDaysRange(Carbon::now()->subDays(30), Carbon::now());
+        $postNumber = [];
+
+        foreach ($days as $day){
+            $postNumber[] = Post::whereDate('created_at', $day)->count();
+        }
+
+        $chart->dataset('Posts', 'line', $postNumber);
+        $chart->labels($days);
+        return view('admin.dashboard', compact('chart'));
+    }
+
+    private function generateDaysRange(Carbon $startDate, Carbon $endDate)
+    {
+        $dates = [];
+        for($date=$startDate; $date->lte($endDate); $date->addDay()){
+            $dates[] = $date->format('y-m-d');
+        }
+        return $dates;
     }
 
     public function users()

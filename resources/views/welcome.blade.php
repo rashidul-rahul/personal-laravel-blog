@@ -35,9 +35,10 @@
             </div>
             <hr>
             @endforeach
+
             <!-- Pager -->
             <div class="clearfix">
-                <a class="btn btn-primary float-right" href="#">Older Posts &rarr;</a>
+                {{ $posts->links() }}
             </div>
         </div>
     </div>
